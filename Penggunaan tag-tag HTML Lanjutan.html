@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtVault shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .search-bar {
+            margin: 10px auto;
+            text-align: center;
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 60%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .catalog {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .product {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        img {
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .price {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .btn-add {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-add:hover {
+            background: #12295a;
+        }
+        /* Notifikasi */
+        .notif {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: green;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function tambahKeKeranjang(nama, gambar, harga) {
+            let index = cart.findIndex(item => item.nama === nama);
+
+            if (index !== -1) {
+                cart[index].jumlah += 1;
+            } else {
+                cart.push({ nama, gambar, harga, jumlah: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // Tampilkan notifikasi
+            let notif = document.getElementById("notif");
+            notif.innerText = nama + " ditambahkan ke keranjang!";
+            notif.style.display = "block";
+
+            setTimeout(() => {
+                notif.style.display = "none";
+            }, 2000);
+        }
+
+        function cariGambar() {
+            let input = document.getElementById('search').value.toLowerCase();
+            let products = document.querySelectorAll('.product');
+            products.forEach(product => {
+                let title = product.querySelector('p').innerText.toLowerCase();
+                product.style.display = title.includes(input) ? 'block' : 'none';
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div>ArtVault shop</div>
+        <a href="keranjang.html">🛒 Keranjang</a>
+    </div>
+    <div class="search-bar">
+        <input type="text" id="search" onkeyup="cariGambar()" placeholder="Cari gambar...">
+    </div>
+    <div class="catalog" id="catalog">
+        <script>
+            let katalog = document.getElementById('catalog');
+            for (let i = 1; i <= 30; i++) {
+                katalog.innerHTML += `
+                    <div class="product">
+                        <img src="Image/${i}.jpg" title="Ini adalah gambar keren" alt="Gambar ${i}">
+                        <p>Gambar ${i} - <span class="price">Rp100.000</span></p>
+                        <button class="btn-add" onclick="tambahKeKeranjang('Gambar ${i}', 'Image/${i}.jpg', '100000')">Tambah ke Keranjang</button>
+                    </div>
+                `;
+            }
+        </script>
+    </div>
+
+    <div id="notif" class="notif"></div>
+
+</body>
+</html>

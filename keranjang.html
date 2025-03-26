@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .cart-container {
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-item .quantity {
+            margin: 0 10px;
+        }
+        .btn {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #12295a;
+        }
+        .btn-checkout {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function tampilkanKeranjang() {
+            let container = document.getElementById('cart-items');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Keranjang kosong.</p>';
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                // Validasi agar tidak ada harga atau jumlah yang null atau undefined
+                let jumlah = item.jumlah || 1;
+                let harga = parseInt(item.harga) || 0;
+                let totalHarga = harga * jumlah;
+
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <span>${item.nama} x ${jumlah}</span>
+                        <img src="${item.gambar || 'placeholder.jpg'}" alt="${item.nama}" width="50">
+                        <span class="price">Rp${totalHarga.toLocaleString('id-ID')}</span>
+                        <button class="btn" onclick="ubahJumlah(${index}, -1)">-</button>
+                        <span class="quantity">${jumlah}</span>
+                        <button class="btn" onclick="ubahJumlah(${index}, 1)">+</button>
+                        <button class="btn" onclick="hapusItem(${index})">Hapus</button>
+                    </div>
+                `;
+            });
+        }
+
+        function ubahJumlah(index, perubahan) {
+            if (cart[index].jumlah + perubahan > 0) {
+                cart[index].jumlah += perubahan;
+            } else {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            tampilkanKeranjang();
+        }
+
+        function hapusItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            tampilkanKeranjang();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+            alert('Pesanan berhasil diproses! Terima kasih telah berbelanja.');
+            localStorage.removeItem('cart');
+            window.location.href = 'Penggunaan tag-tag HTML Lanjutan.html';
+        }
+
+        function tambahKeKeranjang(nama, harga, gambar) {
+            let index = cart.findIndex(item => item.nama === nama);
+            if (index !== -1) {
+                cart[index].jumlah += 1;
+            } else {
+                cart.push({ 
+                    nama, 
+                    harga: parseInt(harga) || 0,  // Pastikan harga selalu angka
+                    gambar: gambar || 'placeholder.jpg',  // Gunakan gambar default jika null
+                    jumlah: 1 
+                });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            tampilkanNotifikasi('Barang ditambahkan ke keranjang!');
+        }
+
+        function tampilkanNotifikasi(pesan) {
+            let notif = document.getElementById('notification');
+            notif.innerText = pesan;
+            notif.style.display = 'block';
+            setTimeout(() => notif.style.display = 'none', 2000);
+        }
+
+        window.onload = tampilkanKeranjang;
+    </script>
+</head>
+<body>
+    <div class="header">Keranjang Belanja</div>
+    <div class="cart-container">
+        <div id="cart-items"></div>
+        <button class="btn btn-checkout" onclick="checkout()">Checkout</button>
+    </div>
+    <div id="notification" class="notification"></div>
+</body>
+</html>
